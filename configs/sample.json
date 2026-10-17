@@ -1,0 +1,17 @@
+{
+  "extends": "../planner.config.json",
+  "months": 1,
+  "variants": ["dated"],
+  "sizes": ["letter", "a5"],
+  "counts": {
+    "goalPlanners": 1,
+    "wellnessCheckins": 1,
+    "gratitudePages": 1,
+    "notesPages": 2,
+    "dotGridPages": 1
+  },
+  "output": {
+    "dir": "output/sample",
+    "filename": "{slug}-sample-{variant}-{size}.pdf"
+  }
+}

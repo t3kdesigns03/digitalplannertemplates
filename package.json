@@ -1,0 +1,39 @@
+{
+  "name": "cosmic-bloom-planner",
+  "version": "1.0.0",
+  "description": "Generates a fully hyperlinked, GoodNotes-friendly digital planner PDF with a cute space aliens + space flowers theme.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node src/cli.js",
+    "sample": "node src/cli.js --config configs/sample.json",
+    "build:letter": "node src/cli.js --size letter",
+    "build:a4": "node src/cli.js --size a4",
+    "build:a5": "node src/cli.js --size a5",
+    "html": "node src/cli.js --html-only",
+    "stickers": "node src/stickers.js",
+    "verify": "node src/verify.js",
+    "test": "node src/cli.js --config configs/sample.json && node src/verify.js output/sample",
+    "prepare-art": "node tools/prepare-art.js",
+    "setup": "playwright install chromium",
+    "preview": "node tools/preview.js",
+    "render-pdf": "node tools/render-pdf.js",
+    "prebuild": "playwright install chromium --only-shell",
+    "postbuild": "node tools/site.js",
+    "site": "node tools/site.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.64.1",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "pdfjs-dist": "^6.4.299"
+  }
+}

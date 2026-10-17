@@ -1,0 +1,10 @@
+{
+  "extends": "../planner.config.json",
+  "title": "Cosmic Bloom",
+  "subtitle": "Academic Planner",
+  "startMonth": 8,
+  "months": 12,
+  "weekStart": "sunday",
+  "variants": ["dated"],
+  "sizes": ["a4"]
+}

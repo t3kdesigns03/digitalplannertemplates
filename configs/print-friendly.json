@@ -1,0 +1,9 @@
+{
+  "extends": "../planner.config.json",
+  "variants": ["dated"],
+  "sizes": ["letter"],
+  "sections": { "daily": false },
+  "decor": { "nebulaBackground": false },
+  "colors": { "paper": "#ffffff" },
+  "output": { "filename": "{slug}-{yearLabel}-print-{size}.pdf" }
+}

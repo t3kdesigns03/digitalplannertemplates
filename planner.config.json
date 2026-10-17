@@ -1,0 +1,168 @@
+{
+  "title": "Cosmic Bloom",
+  "subtitle": "Planner",
+  "tagline": "a little galaxy for your big dreams",
+  "owner": "",
+  "author": "T3K Designs",
+
+  "year": 2026,
+  "startMonth": 1,
+  "months": 12,
+  "weekStart": "monday",
+  "locale": "en-US",
+
+  "variants": ["dated", "undated"],
+  "sizes": ["letter", "a5"],
+
+  "sections": {
+    "cover": true,
+    "welcome": true,
+    "dashboard": true,
+    "yearOverview": true,
+    "yearPlan": true,
+    "monthly": true,
+    "monthlyHabits": true,
+    "weekly": true,
+    "daily": true,
+    "habits": true,
+    "goals": true,
+    "wellness": true,
+    "notes": true,
+    "journal": true,
+    "fun": true,
+    "stickers": true
+  },
+
+  "counts": {
+    "goalPlanners": 4,
+    "wellnessCheckins": 4,
+    "gratitudePages": 4,
+    "notesPages": 10,
+    "dotGridPages": 6,
+    "habitsPerMonth": 8
+  },
+
+  "daily": {
+    "startHour": 6,
+    "endHour": 21,
+    "clock": "12h"
+  },
+
+  "undated": {
+    "weeksPerMonth": 5,
+    "daysPerMonth": 31
+  },
+
+  "decor": {
+    "nebulaBackground": true,
+    "characterAccents": true
+  },
+
+  "colors": {
+    "ink": "#4a3a6b",
+    "inkSoft": "#8b7bab",
+    "paper": "#fffbfd",
+    "writing": "#ffffff",
+    "line": "#e3d8f0",
+    "dot": "#cfc1e3",
+    "night": "#3b2d5e",
+    "pink": "#ff9ecb",
+    "lavender": "#c3b1ff",
+    "teal": "#5fd3cb",
+    "mint": "#a6ecc6",
+    "yellow": "#ffdf7e",
+    "peach": "#ffc2a6",
+    "sky": "#9fd2ff",
+    "blush": "#ff7fb0"
+  },
+
+  "fonts": {
+    "display": "Fredoka",
+    "body": "Nunito",
+    "script": "Caveat"
+  },
+
+  "characters": [
+    { "id": "blossom", "name": "Blossom", "image": "blossom", "color": "#ff9ecb", "tagline": "Waves hello to every new day" },
+    { "id": "peach", "name": "Peach", "image": "peach", "color": "#ffb48f", "tagline": "Picks a space flower for you" },
+    { "id": "sky", "name": "Sky", "image": "ssy", "color": "#8fcfff", "tagline": "Floats through the busy days" },
+    { "id": "starlight", "name": "Starlight", "image": "starlight", "color": "#b9a2ff", "tagline": "Keeps your wishes safe" },
+    { "id": "mint", "name": "Mint", "image": "mint", "color": "#7fe0c4", "tagline": "Hugs the whole world gently" },
+    { "id": "sunny", "name": "Sunny", "image": "sunny", "color": "#ffd66b", "tagline": "Cheers loudest for small wins" },
+    { "id": "cloud", "name": "Cloud", "image": "cloud", "color": "#c9d3e8", "tagline": "Wonders about everything" }
+  ],
+
+  "moodColors": ["#ffd66b", "#ff9ecb", "#7fe0c4", "#c9d3e8", "#8fcfff", "#b9a2ff"],
+
+  "labels": {
+    "home": "Home",
+    "year": "Year",
+    "goals": "Goals",
+    "habits": "Habits",
+    "wellness": "Wellness",
+    "notes": "Notes",
+    "fun": "Fun",
+    "welcomeTitle": "Welcome, starlight!",
+    "welcomeMessage": "This little galaxy is all yours. Plan big, dream softly, and let the crew cheer you on through every orbit of the year. Tap any tab, date or button to fly straight there.",
+    "dashboardTitle": "Mission Control",
+    "yearTitle": "Year at a Glance",
+    "yearPlanTitle": "Year Plan",
+    "habitsTitle": "Habit Galaxy",
+    "goalsTitle": "Dreams & Goals",
+    "visionTitle": "Vision Board",
+    "goalPlannerTitle": "Goal Launchpad",
+    "wellnessTitle": "Self-Care Constellation",
+    "checkinTitle": "Wellness Check-In",
+    "gratitudeTitle": "Gratitude Garden",
+    "notesTitle": "Notes",
+    "dotGridTitle": "Dot Grid",
+    "journalTitle": "Journal Prompts",
+    "funTitle": "Cosmic Playground",
+    "gardenTitle": "Space Garden",
+    "moodTitle": "Moods in Orbit",
+    "bucketTitle": "Galactic Bucket List",
+    "readsTitle": "Reads & Watches",
+    "doodleTitle": "Doodle Nebula",
+    "stickersTitle": "Sticker Sheet",
+    "lifeAreas": ["Body & Health", "Career & Money", "Love & Friends", "Home & Space", "Growth & Learning", "Fun & Adventure"],
+    "selfCareAreas": ["Body", "Mind", "Heart", "Soul"],
+    "moods": ["Radiant", "Happy", "Calm", "Meh", "Sad", "Stressed"],
+    "affirmations": [
+      "I am allowed to bloom at my own pace.",
+      "Small steps still travel light-years.",
+      "My dreams are worth the orbit.",
+      "I shine, even on cloudy nights."
+    ],
+    "journalPrompts": [
+      "What made you feel most like yourself this month?",
+      "Write a letter to your future self, one orbit from now.",
+      "Which tiny moment sparkled today, and why?",
+      "If your life were a planet, what would grow there?",
+      "What are you ready to let drift off into space?",
+      "Describe your dream ordinary day, from sunrise to stars.",
+      "Who lights up your universe? Tell them why (here first).",
+      "What fear would you leave behind on a faraway moon?",
+      "List ten things that make you feel calm and safe.",
+      "What did you learn about yourself this season?",
+      "What does 'enough' look like for you right now?",
+      "Write about a time you were braver than you felt."
+    ]
+  },
+
+  "pageSizes": {
+    "letter": { "width": "8.5in", "height": "11in", "baseFont": "10pt", "lineGap": "7.2mm" },
+    "a4": { "width": "210mm", "height": "297mm", "baseFont": "9.8pt", "lineGap": "7.2mm" },
+    "a5": { "width": "148mm", "height": "210mm", "baseFont": "7.1pt", "lineGap": "5.6mm" }
+  },
+
+  "output": {
+    "dir": "output",
+    "filename": "{slug}-{yearLabel}-{variant}-{size}.pdf",
+    "keepHtml": true
+  },
+
+  "pdf": {
+    "explicitDestinations": true,
+    "outline": true
+  }
+}

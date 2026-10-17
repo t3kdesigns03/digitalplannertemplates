@@ -1,0 +1,22 @@
+# Netlify builds the planners and publishes the download page in dist/.
+# `npm run build` downloads Chromium (prebuild), renders the PDFs, then
+# assembles dist/ (postbuild).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Keep Playwright's Chromium inside node_modules so Netlify's dependency
+  # cache keeps it between deploys (no re-download each build).
+  PLAYWRIGHT_BROWSERS_PATH = "0"
+  # Optional: build fewer files to deploy faster, e.g.
+  # PLANNER_SIZES = "letter"
+  # PLANNER_VARIANTS = "dated"
+  PLANNER_JOBS = "2"
+
+[[headers]]
+  for = "/*.pdf"
+  [headers.values]
+    Content-Type = "application/pdf"
+    Cache-Control = "public, max-age=3600"
