@@ -1,10 +1,19 @@
-# Galactic Cover Concepts
+# Cover Concepts
 
-These are AI-generated more-galactic alternatives to the current pastel Cosmic Bloom covers.
+Reference art for different visual directions. The live planner cover is still generated from `src/pages/cover.js` (soft pastel SVG style).
 
-- galactic-concept-1-nebula-planet.jpg — Swirling nebula + ringed planet + spiral galaxy
-- galactic-concept-2-spiral-galaxy.jpg — Dominant spiral galaxy with asteroids and supernova remnant
-- galactic-concept-3-nebula-star.jpg — Massive colorful nebula with central star
-- galactic-concept-4-ringed-planet.jpg — Minimalist elegant ringed planet with nebula glow
+## galactic-pure/
+More galactic, no characters. Pure cosmic scenes.
+- galactic-concept-1-nebula-planet.jpg
+- galactic-concept-2-spiral-galaxy.jpg
+- galactic-concept-3-nebula-star.jpg
+- galactic-concept-4-ringed-planet.jpg
 
-Use as reference or drop into the planner cover generation if desired.
+## galactic-cute/
+Cute pastel aliens kept, but placed in much more dramatic galactic backgrounds.
+- galactic-cute-1-hill-nebula.jpg
+- galactic-cute-2-floating-galaxy.jpg
+- galactic-cute-3-four-aliens-planet.jpg
+- galactic-cute-4-asteroid-platform.jpg
+
+Do not delete the original soft pastel cover generation. New styles should be additive.
