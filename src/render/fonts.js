@@ -7,10 +7,11 @@ const FONTS = {
   Fredoka: { pkg: 'fredoka', weights: [400, 500, 600, 700] },
   Nunito: { pkg: 'nunito', weights: [400, 600, 700, 800] },
   Caveat: { pkg: 'caveat', weights: [500, 700] },
+  'Cormorant Garamond': { pkg: 'cormorant-garamond', weights: [500, 600] },
 };
 
 export function fontFaceCss(cfg) {
-  const wanted = new Set(Object.values(cfg.fonts));
+  const wanted = new Set([...Object.values(cfg.fonts), ...(cfg.styleDef?.extraFonts ?? [])]);
   let css = '';
   for (const family of wanted) {
     const spec = FONTS[family];

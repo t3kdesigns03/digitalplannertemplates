@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { STYLES, resolveStyle } from './styles.js';
 
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
 
@@ -29,6 +30,8 @@ export function normalizeConfig(cfg) {
   for (const s of cfg.sizes) if (!cfg.pageSizes[s]) errors.push(`unknown size "${s}" (define it under pageSizes)`);
   for (const v of cfg.variants) if (!['dated', 'undated'].includes(v)) errors.push(`unknown variant "${v}"`);
   if (!cfg.characters?.length) errors.push('at least one character is required');
+  const style = resolveStyle(cfg.style);
+  if (!style) errors.push(`unknown style "${cfg.style}" (available: ${Object.keys(STYLES).join(', ')})`);
   if (errors.length) throw new Error('Invalid planner config:\n  - ' + errors.join('\n  - '));
 
   const locale = cfg.locale || 'en-US';
@@ -47,11 +50,13 @@ export function normalizeConfig(cfg) {
   const endYear = new Date(Date.UTC(cfg.year, cfg.startMonth - 1 + cfg.months - 1, 1)).getUTCFullYear();
   const yearLabel = endYear === cfg.year ? String(cfg.year) : `${cfg.year}-${endYear}`;
 
-  return { ...cfg, labels, slug, yearLabel, endYear };
+  return { ...cfg, style, styleDef: STYLES[style], labels, slug, yearLabel, endYear };
 }
 
 export function resolveConfig({ configPath, overrides = {} }) {
   const defaults = loadConfigFile(path.resolve('planner.config.json'));
   const fromFile = configPath ? loadConfigFile(configPath) : {};
-  return normalizeConfig(deepMerge(deepMerge(defaults, fromFile), overrides));
+  // PLANNER_STYLE lets CI (e.g. Netlify) pick a style without editing files
+  const env = process.env.PLANNER_STYLE ? { style: process.env.PLANNER_STYLE } : {};
+  return normalizeConfig(deepMerge(deepMerge(deepMerge(defaults, fromFile), env), overrides));
 }

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { nebulaBackground } from './background.js';
+import { galacticSky } from './galactic.js';
 
 const ROOT = path.resolve('assets/processed');
 
@@ -33,5 +34,6 @@ export async function loadArt(cfg, { maxHeight = 760 } = {}) {
   const flowers = [];
   for (const fl of manifest.flowers) flowers.push({ ...fl, ...(await encode(fl.file)) });
   const nebula = cfg.decor.nebulaBackground ? await nebulaBackground(cfg) : null;
-  return { characters, flowers, nebula };
+  const coverSky = cfg.styleDef.cover === 'galactic' ? await galacticSky(cfg) : null;
+  return { characters, flowers, nebula, coverSky };
 }

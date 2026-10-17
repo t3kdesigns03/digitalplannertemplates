@@ -6,13 +6,15 @@
 //   node src/cli.js --html-only             write HTML previews to build/ without rendering PDFs
 //   node src/cli.js --jobs 2                render up to 2 PDFs at once
 // Env equivalents (handy on CI / Netlify): PLANNER_CONFIG, PLANNER_SIZES,
-// PLANNER_VARIANTS, PLANNER_JOBS. Command-line flags win over env vars.
+// PLANNER_VARIANTS, PLANNER_JOBS, PLANNER_STYLE. Command-line flags win over env vars.
+//   node src/cli.js --style galactic-cute   pick a visual style (see src/styles.js)
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { resolveConfig } from './config.js';
 import { buildModel, SECTION_IDS } from './model.js';
+import { DEFAULT_STYLE } from './styles.js';
 import { loadArt } from './art/images.js';
 import { buildHtml } from './render/document.js';
 import { launch, renderPdf, postProcess } from './pdf.js';
@@ -34,6 +36,7 @@ function parseArgs(argv) {
     else if (a === '--size') out.sizes = next().split(',');
     else if (a === '--variant') out.variants = next().split(',');
     else if (a === '--year') out.overrides.year = Number(next());
+    else if (a === '--style') out.overrides.style = next();
     else if (a === '--html-only') out.htmlOnly = true;
     else if (a === '--jobs') out.jobs = Number(next());
     else if (a === '--help' || a === '-h') out.help = true;
@@ -80,9 +83,14 @@ function outlineFor(cfg, model) {
 }
 
 function fileName(cfg, variant, size) {
-  return cfg.output.filename
+  // The default style keeps the original names; other styles get a suffix so
+  // both looks can sit side by side (unless the pattern places {style} itself).
+  const style = cfg.style === DEFAULT_STYLE ? '' : cfg.style;
+  let name = cfg.output.filename;
+  if (style && !name.includes('{style}')) name = name.replace(/\.pdf$/, '-{style}.pdf');
+  return name
     .replace('{slug}', cfg.slug).replace('{yearLabel}', variant === 'undated' ? 'undated' : cfg.yearLabel)
-    .replace('{variant}', variant === 'undated' ? '' : variant).replace('{size}', size)
+    .replace('{variant}', variant === 'undated' ? '' : variant).replace('{size}', size).replace('{style}', style)
     .replace(/-+/g, '-').replace('-.pdf', '.pdf');
 }
 
@@ -151,6 +159,7 @@ async function main() {
   results.sort((a, b) => order(a) - order(b));
   fs.writeFileSync(path.join(outDir, 'builds.json'), JSON.stringify({
     title: cfg.title, subtitle: cfg.subtitle, tagline: cfg.tagline, yearLabel: cfg.yearLabel,
+    style: cfg.style, styleLabel: cfg.styleDef.label,
     generated: new Date().toISOString(), pdfs: results,
   }, null, 2));
 }

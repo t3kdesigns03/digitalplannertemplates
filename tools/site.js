@@ -75,12 +75,13 @@ const html = `<!doctype html>
   .meta span { color: var(--soft); font-size: .9rem; }
   .meta em { font-style: normal; font-weight: 600; margin-top: 8px; color: #fff; background: var(--ink); border-radius: 999px; padding: 6px 14px; align-self: flex-start; font-size: .9rem; }
   footer { margin-top: 40px; color: var(--soft); font-size: .85rem; }
+  .style { display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--lav) 35%, #fff); color: var(--ink); font-size: .85rem; }
 </style>
 </head>
 <body>
 <main>
   <h1>${esc(manifest.title)} ${esc(manifest.subtitle)}</h1>
-  <p class="lead">${esc(manifest.tagline)}. Hyperlinked for GoodNotes, Notability &amp; Noteshelf.</p>
+  <p class="lead">${esc(manifest.tagline)}. Hyperlinked for GoodNotes, Notability &amp; Noteshelf.${manifest.styleLabel ? ` <span class="style">${esc(manifest.styleLabel)} style</span>` : ''}</p>
   <div class="grid">${cards}</div>
   <footer>Generated ${esc(new Date(manifest.generated).toUTCString())}</footer>
 </main>

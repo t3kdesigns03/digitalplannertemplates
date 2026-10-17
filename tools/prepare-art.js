@@ -208,6 +208,24 @@ function removeChecker(data, W, H) {
       out[q] = r; out[q + 1] = g; out[q + 2] = b; out[q + 3] = Math.round(a * 255);
     }
   }
+  // Edge decontamination: pixels right at the silhouette are partly blended
+  // with the light checkerboard, which shows as a pale fringe on dark covers.
+  // Give them the colour of the solid pixels just inside the character.
+  const src = Buffer.from(out);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (bg[i] || dist[i] > 2) continue;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        const j = ny * W + nx;
+        if (dist[j] >= 4 && src[j * 4 + 3] >= 250) { r += src[j * 4]; g += src[j * 4 + 1]; b += src[j * 4 + 2]; n++; }
+      }
+      if (n) { out[i * 4] = r / n; out[i * 4 + 1] = g / n; out[i * 4 + 2] = b / n; }
+    }
+  }
   return { rgba: out, bg, checker: { lo, hi } };
 }
 
