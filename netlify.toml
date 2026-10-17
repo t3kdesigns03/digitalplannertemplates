@@ -10,6 +10,9 @@
   # Keep Playwright's Chromium inside node_modules so Netlify's dependency
   # cache keeps it between deploys (no re-download each build).
   PLAYWRIGHT_BROWSERS_PATH = "0"
+  # Build every style so the gallery at / links to each design's page
+  # (/<style>/). Use one style name here to deploy just that design.
+  PLANNER_STYLE = "all"
   # Optional: build fewer files to deploy faster, e.g.
   # PLANNER_SIZES = "letter"
   # PLANNER_VARIANTS = "dated"

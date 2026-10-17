@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { STYLES, resolveStyle } from './styles.js';
+import { STYLES, resolveStyle, isStyleList } from './styles.js';
 
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
 
@@ -56,7 +56,9 @@ export function normalizeConfig(cfg) {
 export function resolveConfig({ configPath, overrides = {} }) {
   const defaults = loadConfigFile(path.resolve('planner.config.json'));
   const fromFile = configPath ? loadConfigFile(configPath) : {};
-  // PLANNER_STYLE lets CI (e.g. Netlify) pick a style without editing files
-  const env = process.env.PLANNER_STYLE ? { style: process.env.PLANNER_STYLE } : {};
+  // PLANNER_STYLE lets CI (e.g. Netlify) pick a style without editing files.
+  // A list ("all", "a,b") is expanded by src/cli.js, which passes each style as an override.
+  const envStyle = process.env.PLANNER_STYLE;
+  const env = envStyle && !isStyleList(envStyle) ? { style: envStyle } : {};
   return normalizeConfig(deepMerge(deepMerge(deepMerge(defaults, fromFile), env), overrides));
 }

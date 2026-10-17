@@ -8,13 +8,15 @@
 // Env equivalents (handy on CI / Netlify): PLANNER_CONFIG, PLANNER_SIZES,
 // PLANNER_VARIANTS, PLANNER_JOBS, PLANNER_STYLE. Command-line flags win over env vars.
 //   node src/cli.js --style galactic-cute   pick a visual style (see src/styles.js)
+//   node src/cli.js --style all             build every style (or a list: soft,galactic-cute)
+// Each style's PDFs land in their own folder, <output.dir>/<style>/, one Etsy listing each.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { resolveConfig } from './config.js';
 import { buildModel, SECTION_IDS } from './model.js';
-import { DEFAULT_STYLE } from './styles.js';
+import { DEFAULT_STYLE, expandStyles, isStyleList } from './styles.js';
 import { loadArt } from './art/images.js';
 import { buildHtml } from './render/document.js';
 import { launch, renderPdf, postProcess } from './pdf.js';
@@ -28,6 +30,7 @@ function parseArgs(argv) {
     sizes: list(env.PLANNER_SIZES),
     variants: list(env.PLANNER_VARIANTS),
     jobs: env.PLANNER_JOBS ? Number(env.PLANNER_JOBS) : undefined,
+    style: env.PLANNER_STYLE || undefined,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -36,7 +39,7 @@ function parseArgs(argv) {
     else if (a === '--size') out.sizes = next().split(',');
     else if (a === '--variant') out.variants = next().split(',');
     else if (a === '--year') out.overrides.year = Number(next());
-    else if (a === '--style') out.overrides.style = next();
+    else if (a === '--style') out.style = next();
     else if (a === '--html-only') out.htmlOnly = true;
     else if (a === '--jobs') out.jobs = Number(next());
     else if (a === '--help' || a === '-h') out.help = true;
@@ -97,16 +100,31 @@ function fileName(cfg, variant, size) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
-    console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 7).join('\n').replace(/^\/\/ ?/gm, ''));
+    const lines = fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1);
+    console.log(lines.slice(0, lines.findIndex((l) => !l.startsWith('//'))).join('\n').replace(/^\/\/ ?/gm, ''));
     return;
   }
-  const cfg = resolveConfig({ configPath: args.configPath, overrides: args.overrides });
+  // One style, a list, or "all"; undefined falls back to the config's "style".
+  const styles = args.style && isStyleList(args.style) ? expandStyles(args.style) : [args.style];
+  ensureArt();
+  let browser = null;
+  const getBrowser = async () => (browser ??= await launch()); // shared by every style
+  try {
+    for (const style of styles) {
+      const cfg = resolveConfig({ configPath: args.configPath, overrides: style ? { ...args.overrides, style } : args.overrides });
+      await buildStyle(cfg, args, getBrowser);
+    }
+  } finally {
+    await browser?.close();
+  }
+}
+
+async function buildStyle(cfg, args, getBrowser) {
   const sizes = args.sizes ?? cfg.sizes;
   const variants = args.variants ?? cfg.variants;
-  ensureArt();
   const art = await loadArt(cfg);
 
-  const outDir = path.resolve(cfg.output.dir);
+  const outDir = path.resolve(cfg.output.dir, cfg.style);
   const buildDir = path.resolve('build');
   fs.mkdirSync(outDir, { recursive: true });
   fs.mkdirSync(buildDir, { recursive: true });
@@ -128,31 +146,27 @@ async function main() {
   // wall-clock time on multi-core machines (each needs ~1-2 GB of memory).
   const parallel = Math.max(1, Math.min(jobs.length, args.jobs || (os.cpus().length >= 4 ? 2 : 1)));
   const results = [];
-  const browser = await launch();
-  try {
-    const queue = [...jobs];
-    const worker = async () => {
-      for (let job = queue.shift(); job; job = queue.shift()) {
-        const { variant, size } = job;
-        const model = models[variant];
-        const t0 = Date.now();
-        const name = fileName(cfg, variant, size);
-        const htmlPath = htmlFor(variant, size);
-        fs.writeFileSync(htmlPath, buildHtml({ cfg, model, art, sizeKey: size }));
-        const pdfPath = path.join(outDir, name);
-        await renderPdf(browser, htmlPath, pdfPath);
-        const info = await postProcess(pdfPath, { cfg, model, outline: outlineFor(cfg, model) });
-        const bytes = fs.statSync(pdfPath).size;
-        results.push({ file: name, variant, size, pages: info.pageCount, links: info.converted, bytes, html: cfg.output.keepHtml ? path.relative(process.cwd(), htmlPath) : null });
-        if (!cfg.output.keepHtml) fs.rmSync(htmlPath);
-        console.log(`PDF   ${path.relative(process.cwd(), pdfPath)}  ${info.pageCount} pages, ${info.converted} links, ${(bytes / 1048576).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-        if (info.unresolved.length) console.warn(`      WARNING: ${info.unresolved.length} unresolved link targets, e.g. ${info.unresolved.slice(0, 5).join(', ')}`);
-      }
-    };
-    await Promise.all(Array.from({ length: parallel }, worker));
-  } finally {
-    await browser.close();
-  }
+  const browser = await getBrowser();
+  const queue = [...jobs];
+  const worker = async () => {
+    for (let job = queue.shift(); job; job = queue.shift()) {
+      const { variant, size } = job;
+      const model = models[variant];
+      const t0 = Date.now();
+      const name = fileName(cfg, variant, size);
+      const htmlPath = htmlFor(variant, size);
+      fs.writeFileSync(htmlPath, buildHtml({ cfg, model, art, sizeKey: size }));
+      const pdfPath = path.join(outDir, name);
+      await renderPdf(browser, htmlPath, pdfPath);
+      const info = await postProcess(pdfPath, { cfg, model, outline: outlineFor(cfg, model) });
+      const bytes = fs.statSync(pdfPath).size;
+      results.push({ file: name, variant, size, pages: info.pageCount, links: info.converted, bytes, html: cfg.output.keepHtml ? path.relative(process.cwd(), htmlPath) : null });
+      if (!cfg.output.keepHtml) fs.rmSync(htmlPath);
+      console.log(`PDF   ${path.relative(process.cwd(), pdfPath)}  ${info.pageCount} pages, ${info.converted} links, ${(bytes / 1048576).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+      if (info.unresolved.length) console.warn(`      WARNING: ${info.unresolved.length} unresolved link targets, e.g. ${info.unresolved.slice(0, 5).join(', ')}`);
+    }
+  };
+  await Promise.all(Array.from({ length: parallel }, worker));
 
   // What was built, in config order. tools/site.js reads this to assemble dist/.
   const order = (r) => jobs.findIndex((j) => j.variant === r.variant && j.size === r.size);

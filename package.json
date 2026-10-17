@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "build": "node src/cli.js",
+    "build:all": "npm run build -- --style all",
     "sample": "node src/cli.js --config configs/sample.json",
     "build:letter": "node src/cli.js --size letter",
     "build:a4": "node src/cli.js --size a4",

@@ -26,3 +26,17 @@ export function resolveStyle(name) {
   const key = STYLE_ALIASES[name] ?? name ?? DEFAULT_STYLE;
   return STYLES[key] ? key : null;
 }
+
+/** True for a value that names several styles ("all" or "soft,galactic-cute"). */
+export const isStyleList = (value) => value === 'all' || String(value ?? '').includes(',');
+
+/** Expands "all" or a comma-separated list into style keys; throws on unknown names. */
+export function expandStyles(value) {
+  const names = value === 'all' ? Object.keys(STYLES) : String(value).split(',').map((s) => s.trim()).filter(Boolean);
+  const keys = names.map((n) => {
+    const key = resolveStyle(n);
+    if (!key) throw new Error(`Unknown style "${n}" (available: ${Object.keys(STYLES).join(', ')}, or "all")`);
+    return key;
+  });
+  return [...new Set(keys)];
+}

@@ -9,11 +9,12 @@ The pages are HTML/CSS templates. Playwright's Chromium renders them to PDF, and
 ```bash
 npm install
 npm run setup        # downloads the Chromium build Playwright needs (once)
-npm run sample       # ~80-page January sample -> output/sample/
-npm run build        # full planners -> output/
+npm run sample       # ~80-page January sample -> output/sample/soft/
+npm run build        # full planners in the configured style -> output/soft/
+npm run build:all    # every style, each in its own folder -> output/<style>/
 ```
 
-`npm run build` uses `planner.config.json` and writes every size × variant listed there. By default that's four files:
+`npm run build` uses `planner.config.json` and writes every size × variant listed there into `output/<style>/`. By default that's four files:
 
 | File | Pages | Links | Size |
 |---|---|---|---|
@@ -91,6 +92,7 @@ node src/cli.js --config configs/academic-a4.json
 node src/cli.js --size a5 --variant undated
 node src/cli.js --year 2027
 node src/cli.js --style galactic-cute
+node src/cli.js --style all          # every style (or a list: --style soft,galactic-cute)
 node src/cli.js --html-only          # just write build/*.html for browser preview
 ```
 
@@ -106,13 +108,32 @@ The cover and the strength of the page wash can change between styles. All other
 **How to pick one** (highest priority first):
 
 ```bash
-node src/cli.js --style galactic-cute            # one-off
-PLANNER_STYLE=galactic-cute npm run build        # env var (on Netlify: Site settings → Environment variables)
+npm run build -- --style galactic-cute           # one-off
+npm run build:all                                # every style
+PLANNER_STYLE=galactic-cute npm run build        # env var, bash (on Netlify: Site settings → Environment variables)
+$env:PLANNER_STYLE="galactic-cute"; npm run build  # env var, PowerShell
 ```
 
-Or set `"style": "galactic-cute"` in `planner.config.json`.
+Or set `"style": "galactic-cute"` in `planner.config.json`. `PLANNER_STYLE` and `--style` also accept `all` or a comma-separated list.
 
-The default style keeps the original file names. Other styles add a suffix, for example `cosmic-bloom-2026-dated-letter-galactic-cute.pdf`, so both looks can sit side by side in `output/`. The `dist/` download page shows whichever style was built last, with matching cover thumbnails.
+**One folder per design.** Each style is its own product (one Etsy listing each), so its files live together:
+
+```
+output/
+  soft/                 4 PDFs + covers/ (2x cover images for listing photos) + builds.json
+  galactic-cute/        same, with a -galactic-cute suffix on each file name
+```
+
+The default style keeps the original file names. Other styles add a suffix, for example `cosmic-bloom-2026-dated-letter-galactic-cute.pdf`, so a file can't end up in the wrong listing. Building one style leaves the other folders alone.
+
+**Gallery site.** `dist/` (built by `tools/site.js` after every build) has a main page with one card per design, and a page per design with its PDFs:
+
+```
+dist/index.html                 gallery of every design in output/
+dist/<style>/index.html         that design's downloads + thumbnails
+```
+
+The gallery includes every style folder that has a finished build, so styles built in separate runs all show up.
 
 - Reference art lives in `assets/covers/` (see its README).
 - Style definitions are in `src/styles.js`.
@@ -193,9 +214,9 @@ To rule out the size optimization when chasing a rendering issue, build with `PL
 
 `npm run build` is deploy-ready:
 - `prebuild` downloads Playwright's headless Chromium (`playwright install chromium --only-shell`). If it's already there, this is a no-op.
-- The PDFs render, then `postbuild` (`tools/site.js`) assembles `dist/`: every PDF plus an `index.html` download page with a cover thumbnail for each.
+- The PDFs render, then `postbuild` (`tools/site.js`) assembles `dist/`: a gallery page at `/` with one card per design, and a page per design at `/<style>/` with its PDFs and cover thumbnails.
 
-The included `netlify.toml` publishes `dist/` and stores Chromium inside `node_modules` (`PLAYWRIGHT_BROWSERS_PATH=0`), so Netlify's dependency cache keeps it between deploys.
+The included `netlify.toml` publishes `dist/`, sets `PLANNER_STYLE = "all"` so every design is in the gallery, and stores Chromium inside `node_modules` (`PLAYWRIGHT_BROWSERS_PATH=0`), so Netlify's dependency cache keeps it between deploys.
 
 You can tune the build from **Site settings → Environment variables** without touching code:
 
@@ -203,10 +224,11 @@ You can tune the build from **Site settings → Environment variables** without 
 |---|---|---|
 | `PLANNER_SIZES` | `letter` | Only build these sizes |
 | `PLANNER_VARIANTS` | `dated` | Only build these variants |
+| `PLANNER_STYLE` | `all`, `galactic-cute` | Which designs to build (`all`, one style, or a comma-separated list) |
 | `PLANNER_CONFIG` | `configs/academic-a4.json` | Use a different config |
 | `PLANNER_JOBS` | `2` | PDFs rendered in parallel (each needs ~1–2 GB RAM) |
 
-Locally, the four default planners take about 2–3 minutes with 2 parallel jobs. Netlify's builders are slower, so if a deploy nears the build time limit, set `PLANNER_SIZES`/`PLANNER_VARIANTS` to build fewer files.
+Locally, the four default planners take about 2–3 minutes with 2 parallel jobs on a fast machine (closer to 11 on a slower laptop), and each extra style adds the same again. Netlify's builders are slower, so if a deploy nears the build time limit, set `PLANNER_SIZES`/`PLANNER_VARIANTS` to build fewer files, or `PLANNER_STYLE` to fewer designs.
 
 ## Project layout
 

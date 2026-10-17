@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Checks generated PDFs: every internal link must point at a real page, every
 // page must carry navigation links, and reports page size + image weight.
-//   node src/verify.js output/            (all PDFs in a folder)
+//   node src/verify.js output/            (all PDFs in a folder and its style subfolders)
 //   node src/verify.js file.pdf [...]
 import fs from 'node:fs';
 import path from 'node:path';
@@ -69,7 +69,9 @@ async function verify(file) {
 
 const inputs = process.argv.slice(2);
 if (!inputs.length) inputs.push('output');
-const files = inputs.flatMap((p) => (fs.statSync(p).isDirectory() ? fs.readdirSync(p).filter((f) => f.endsWith('.pdf')).map((f) => path.join(p, f)) : [p]));
+// folders are searched recursively, since builds land in output/<style>/
+const pdfsIn = (dir) => fs.readdirSync(dir, { recursive: true }).filter((f) => f.endsWith('.pdf')).sort().map((f) => path.join(dir, f));
+const files = inputs.flatMap((p) => (fs.statSync(p).isDirectory() ? pdfsIn(p) : [p]));
 if (!files.length) {
   console.error('No PDFs found.');
   process.exit(1);
